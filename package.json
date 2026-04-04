@@ -1,0 +1,12 @@
+{
+  "name": "future-insight-collect",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Data collection pipeline for Future Insight App",
+  "scripts": {
+    "collect": "node collect/main.js"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^4.3.0"
+  }
+}
