@@ -4,6 +4,42 @@
 チューニング時はこのファイルのみ変更する。
 """
 
+# ── 教科構造 ──────────────────────────────────────────
+# 5教科: 英数国理社
+# 詳細科目はあとで追加可能（理科→物理/化学/生物/地学 等）
+SUBJECTS = {
+    "english": {
+        "name_ja": "英語",
+        "sub_subjects": [],  # あとで追加: 英語コミュニケーション, 論理・表現 等
+    },
+    "math": {
+        "name_ja": "数学",
+        "sub_subjects": [],  # あとで追加: 数学I, II, III, A, B, C 等
+    },
+    "japanese": {
+        "name_ja": "国語",
+        "sub_subjects": [],  # あとで追加: 現代の国語, 言語文化, 論理国語 等
+    },
+    "science": {
+        "name_ja": "理科",
+        "sub_subjects": ["physics", "chemistry"],  # 現在のデータ。あとで biology, earth_science 追加
+    },
+    "social": {
+        "name_ja": "社会",
+        "sub_subjects": [],  # あとで追加: 世界史, 日本史, 地理, 公共 等
+    },
+}
+
+# 現在のデータで使用している教科コード（後方互換）
+SUBJECT_CODES = ["math", "physics", "chemistry", "english", "japanese"]
+
+SUBJECT_JA = {
+    "math": "数学", "physics": "物理", "chemistry": "化学",
+    "english": "英語", "japanese": "国語",
+    "science": "理科", "social": "社会",
+    "biology": "生物", "earth_science": "地学",
+}
+
 # 項目分析 (CTT)
 ITEM_ANALYSIS = {
     "percentile_cutoff": 0.27,       # 上位/下位群の分割点（27%ルール）
