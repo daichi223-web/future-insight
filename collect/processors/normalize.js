@@ -24,16 +24,26 @@ function decodeEntities(str) {
 }
 
 /**
+ * Detect language: 'ja' if text contains significant Japanese characters, else 'en'.
+ */
+function detectLang(text) {
+  const ja = (text.match(/[\u3000-\u9FFF\uF900-\uFAFF]/g) || []).length;
+  return ja >= 3 ? 'ja' : 'en';
+}
+
+/**
  * Normalize a raw article into the unified schema.
  * Does NOT assign id, pestle, signalScore, or signalLevel — those come later.
  */
 function normalize(raw) {
+  const title = decodeEntities(stripHtml(raw.title || '')).slice(0, 500);
   return {
-    title: decodeEntities(stripHtml(raw.title || '')).slice(0, 500),
+    title,
     source: raw.source || 'Unknown',
     url: (raw.url || '').trim(),
     publishedAt: raw.publishedAt || new Date().toISOString(),
     type: raw.type || 'news',
+    lang: detectLang(title),
     summary: decodeEntities(stripHtml(raw.summary || '')).slice(0, 1000),
     // Paper-specific
     ...(raw.arxivId ? { arxivId: raw.arxivId } : {}),

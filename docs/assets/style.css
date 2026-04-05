@@ -461,6 +461,26 @@ body {
   line-height: 1.6;
 }
 
+.ja-summary {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  background: #f0f4ff;
+  border-left: 3px solid #3498db;
+  padding: 6px 12px;
+  margin: 6px 0;
+  border-radius: 0 6px 6px 0;
+}
+
+.ja-summary-none {
+  background: transparent;
+  border-left: none;
+  padding: 0;
+  margin: 2px 0;
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+}
+
 .article-actions {
   margin-top: 12px;
 }

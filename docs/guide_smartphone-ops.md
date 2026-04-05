@@ -141,7 +141,8 @@ docs/data/daily-summary.json にデイリーサマリーを書き出して。
 - sections.news: ニュース記事のサマリーとハイライト3つ
 - sections.papers: 学術論文のサマリーとハイライト3つ
 - sections.blogs: SNS/ブログのサマリーとハイライト3つ
-- pestle: PESTLE-Aの各カテゴリ（Political,Economic,Social,Technological,Legal,Environmental,AI）ごとに1文のサマリー
+- pestle: PESTLE-Aの各カテゴリごとに1文のサマリー
+- translations: lang が "en" の記事のIDをキーに日本語要約を1〜2文で
 
 既存のJSONスキーマに従って。コミット＆プッシュして。
 ```

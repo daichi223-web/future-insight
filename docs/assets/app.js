@@ -145,6 +145,14 @@
     return tags || '<span class="pestle-tag" style="background:#aaa">未分類</span>';
   }
 
+  function getJaSummary(article) {
+    if (!article || article.lang === 'ja' || !article.lang) return '';
+    const t = state.dailySummary && state.dailySummary.translations;
+    const ja = t && t[article.id];
+    if (ja) return `<p class="ja-summary">${escapeHtml(ja)}</p>`;
+    return '<p class="ja-summary ja-summary-none">🌐 海外記事</p>';
+  }
+
   function getSignalLevel(score) {
     if (score >= 7) return 'HIGH';
     if (score >= 4) return 'Medium';
@@ -635,6 +643,7 @@
                 <span class="article-date">${formatDate(a.publishedAt)}</span>
               </div>
               <div class="article-tags">${renderPestleTags(a.pestle)}</div>
+              ${getJaSummary(a)}
               <p class="article-summary">${escapeHtml(a.summary || '')}</p>
             </div>`).join('')}
           </div>
@@ -798,6 +807,7 @@
           ${(a.arxivCategories || []).map((c) => `<span class="category-tag">${escapeHtml(c)}</span>`).join('')}
           ${renderPestleTags(a.pestle)}
         </div>
+        ${getJaSummary(a)}
         <p class="article-summary">${escapeHtml(a.summary || '')}</p>
         <div class="article-actions">
           ${a.url ? `<a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">arXivで読む</a>` : ''}
@@ -939,6 +949,7 @@
         <div class="article-tags">
           ${renderPestleTags(a.pestle)}
         </div>
+        ${getJaSummary(a)}
         <p class="article-summary">${escapeHtml(a.summary || '')}</p>
       </div>`
       )
