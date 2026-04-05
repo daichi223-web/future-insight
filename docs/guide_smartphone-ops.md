@@ -78,12 +78,25 @@ Legal または Technological に追加してください。
 
 本格的な開発作業をスマホから対話形式で行う。
 
-### 手順
+### 初回セットアップ
 
-1. https://claude.ai/code にアクセス
-2. Anthropic アカウントでログイン
-3. GitHub 連携で `daichi223-web/future-insight` リポジトリを選択
-4. 対話開始
+1. https://claude.ai/code にスマホブラウザでアクセス
+2. Anthropic アカウントでログイン（なければ作成）
+3. 「Connect to GitHub」または「GitHub リポジトリを接続」を選択
+4. GitHub の OAuth 認証画面が出る → **Authorize** をタップ
+5. リポジトリ一覧から `daichi223-web/future-insight` を選択
+6. 対話画面が開く
+
+### GitHub 認証がうまくいかない場合
+
+- GitHub アプリで先にログインしておく
+- ブラウザの「デスクトップ用サイトを表示」を使う（モバイル表示で崩れる場合）
+- Safari / Chrome どちらでも動作する
+
+### 2回目以降
+
+- claude.ai/code にアクセスすると、前回のリポジトリが記憶されている
+- 別リポジトリに切り替えたい場合は設定から変更
 
 ### できること
 
