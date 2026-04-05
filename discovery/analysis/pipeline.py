@@ -26,6 +26,7 @@ from discovery.analysis.subject_analysis import run_subject_analysis
 from discovery.analysis.cross_subject import run_cross_subject_analysis
 from discovery.analysis.student_profiler import run_student_profiler
 from discovery.analysis.irt_analysis import run_irt_analysis
+from discovery.analysis.behavioral_patterns import run_behavioral_patterns
 
 
 # ── データバリデーション ─────────────────────────────────
@@ -146,6 +147,12 @@ PIPELINE_STEPS = [
         "label": "IRT分析 (2PL)",
         "func": run_irt_analysis,
         "output_file": "irt_analysis.json",
+    },
+    {
+        "name": "behavioral_patterns",
+        "label": "行動経済学パターン検出",
+        "func": run_behavioral_patterns,
+        "output_file": "behavioral_patterns.json",
     },
 ]
 
