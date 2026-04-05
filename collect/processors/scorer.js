@@ -1,7 +1,8 @@
 'use strict';
 
 const FUTURE_KEYWORDS = [
-  'AI', 'AGI', '量子', 'quantum', '気候変動', 'climate',
+  'AI', 'AGI', 'LLM', 'GPT', '大規模言語モデル', 'AIエージェント',
+  '量子', 'quantum', '気候変動', 'climate',
   '規制', 'regulation', '画期的', 'breakthrough', '革新',
   '自動運転', 'autonomous', '生成AI', 'generative',
   'バイオ', 'biotech', 'CRISPR', '核融合', 'fusion',

@@ -21,11 +21,9 @@ const PESTLE_KEYWORDS = {
     'population', 'diversity', 'immigration',
   ],
   Technological: [
-    'AI', '人工知能', '量子', 'ロボット', 'デジタル', 'サイバー',
-    'ブロックチェーン', '機械学習', 'LLM', 'GPT', '生成AI',
-    'メタバース', '5G', '6G', '宇宙', 'EV', '自動運転',
-    'technology', 'artificial intelligence', 'quantum', 'machine learning',
-    'deep learning', 'neural', 'robotics', 'autonomous',
+    '量子', 'ロボット', 'デジタル', 'サイバー', 'ブロックチェーン',
+    'メタバース', '5G', '6G', '宇宙', 'EV', '自動運転', 'IoT',
+    'technology', 'quantum', 'robotics', 'autonomous',
   ],
   Legal: [
     '法律', '法改正', '規制', '裁判', '判決', '著作権', 'プライバシー',
@@ -39,6 +37,17 @@ const PESTLE_KEYWORDS = {
     'サステナビリティ', 'SDGs', 'ESG', 'グリーン',
     'climate', 'environment', 'carbon', 'sustainability', 'renewable',
     'biodiversity', 'emission', 'green',
+  ],
+  AI: [
+    'AI', '人工知能', '機械学習', 'LLM', 'GPT', '生成AI', 'AGI',
+    '大規模言語モデル', '基盤モデル', 'ファインチューニング', 'プロンプト',
+    'ChatGPT', 'Claude', 'Gemini', 'Copilot', 'マルチモーダル',
+    'AIエージェント', 'AI安全性', 'ディープフェイク', '自然言語処理',
+    'トランスフォーマー', '拡散モデル',
+    'artificial intelligence', 'machine learning', 'deep learning', 'neural',
+    'large language model', 'foundation model', 'transformer', 'generative AI',
+    'diffusion model', 'multimodal', 'AI agent', 'AI safety', 'NLP',
+    'computer vision', 'reinforcement learning', 'openai', 'anthropic',
   ],
 };
 
