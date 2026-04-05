@@ -1,0 +1,110 @@
+{
+  "skills": {
+    "math": [
+      "algebraic_manipulation",
+      "geometric_reasoning",
+      "statistical_thinking",
+      "function_understanding",
+      "word_problem_reading"
+    ],
+    "physics": [
+      "mechanics_concepts",
+      "wave_understanding",
+      "energy_conservation",
+      "formula_application",
+      "word_problem_reading"
+    ],
+    "chemistry": [
+      "stoichiometry",
+      "periodic_table",
+      "reaction_mechanisms",
+      "equilibrium_calculation",
+      "word_problem_reading"
+    ],
+    "english": [
+      "grammar",
+      "vocabulary",
+      "reading_comprehension",
+      "listening",
+      "writing"
+    ],
+    "japanese": [
+      "kanji_knowledge",
+      "grammar_classical",
+      "reading_comprehension",
+      "essay_writing",
+      "critical_reading"
+    ]
+  },
+  "item_skill_mapping": {
+    "math": {
+      "q01-q06": "algebraic_manipulation",
+      "q07-q12": "geometric_reasoning",
+      "q13-q18": "statistical_thinking",
+      "q19-q24": "function_understanding",
+      "q25-q30": "word_problem_reading"
+    },
+    "physics": {
+      "q01-q06": "mechanics_concepts",
+      "q07-q12": "wave_understanding",
+      "q13-q18": "energy_conservation",
+      "q19-q24": "formula_application",
+      "q25-q30": "word_problem_reading"
+    },
+    "chemistry": {
+      "q01-q06": "stoichiometry",
+      "q07-q12": "periodic_table",
+      "q13-q18": "reaction_mechanisms",
+      "q19-q24": "equilibrium_calculation",
+      "q25-q30": "word_problem_reading"
+    },
+    "english": {
+      "q01-q06": "grammar",
+      "q07-q12": "vocabulary",
+      "q13-q18": "reading_comprehension",
+      "q19-q24": "listening",
+      "q25-q30": "writing"
+    },
+    "japanese": {
+      "q01-q06": "kanji_knowledge",
+      "q07-q12": "grammar_classical",
+      "q13-q18": "reading_comprehension",
+      "q19-q24": "essay_writing",
+      "q25-q30": "critical_reading"
+    }
+  },
+  "cross_subject_links": [
+    {
+      "from": "math:algebraic_manipulation",
+      "to": "physics:formula_application",
+      "strength": 0.7,
+      "description": "代数操作スキルが物理の公式適用に直接影響"
+    },
+    {
+      "from": "math:function_understanding",
+      "to": "physics:wave_understanding",
+      "strength": 0.5,
+      "description": "関数理解が波動の数学的記述に影響"
+    },
+    {
+      "from": "math:algebraic_manipulation",
+      "to": "chemistry:equilibrium_calculation",
+      "strength": 0.5,
+      "description": "代数操作が化学平衡の計算に影響"
+    },
+    {
+      "from": "english:reading_comprehension",
+      "to": "math:word_problem_reading",
+      "strength": 0.3,
+      "description": "英語読解力が数学の文章題読解に間接的影響"
+    },
+    {
+      "from": "japanese:reading_comprehension",
+      "to": "math:word_problem_reading",
+      "strength": 0.5,
+      "description": "国語読解力が全教科の文章題に影響"
+    }
+  ],
+  "bottleneck_skill": "word_problem_reading",
+  "bottleneck_description": "文章題読解力: 数学・物理・化学の文章題に共通影響する万能ボトルネック"
+}

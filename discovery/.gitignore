@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.streamlit/
+analysis/output/*.json
+!analysis/output/.gitkeep
+data/sample/*.csv
+data/sample/*.json
+!data/sample/.gitkeep
+.venv/
