@@ -13,6 +13,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from discovery.analysis.config import CROSS_SUBJECT as CFG
+
 SUBJECTS = ["math", "physics", "chemistry", "english", "japanese"]
 SUBJECT_JA = {
     "math": "数学", "physics": "物理", "chemistry": "化学",
@@ -132,7 +134,7 @@ def validate_prerequisites(responses_df: pd.DataFrame, q_matrix: dict,
             continue
 
         valid = pivot[[from_skill, to_skill]].dropna()
-        if len(valid) < 30:
+        if len(valid) < CFG["min_sample_size"]:
             results.append({
                 "from": from_raw, "to": to_raw,
                 "expected_strength": prereq.get("strength", ""),
@@ -143,7 +145,8 @@ def validate_prerequisites(responses_df: pd.DataFrame, q_matrix: dict,
             continue
 
         corr = valid[from_skill].corr(valid[to_skill])
-        status = "確認" if corr > 0.3 else ("弱い関連" if corr > 0.15 else "未確認")
+        status = ("確認" if corr > CFG["prerequisite_confirmed"]
+                  else ("弱い関連" if corr > CFG["prerequisite_weak"] else "未確認"))
 
         results.append({
             "from": from_raw, "to": to_raw,

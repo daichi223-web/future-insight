@@ -52,9 +52,18 @@ SUBJECT_ANALYSIS = {
 
 # 教科横断分析
 CROSS_SUBJECT = {
-    "prerequisite_confirmed": 0.30,  # 前提チェーン「確認」の相関閾値
-    "prerequisite_weak": 0.15,       # 「弱い関連」の相関閾値
+    "prerequisite_confirmed": 0.18,  # 前提チェーン「確認」の相関閾値（スキル集約後は希釈されるため低め）
+    "prerequisite_weak": 0.10,       # 「弱い関連」の相関閾値
     "min_sample_size": 30,           # 相関計算の最小サンプルサイズ
+}
+
+# IRT分析
+IRT = {
+    "max_iter": 30,          # 交互推定の最大反復数
+    "a_min": 0.2,            # 識別力の下限
+    "a_max": 3.0,            # 識別力の上限
+    "b_range": 4.0,          # 難易度の範囲 [-b_range, +b_range]
+    "theta_range": 4.0,      # 能力の範囲 [-theta_range, +theta_range]
 }
 
 # 生徒プロファイル

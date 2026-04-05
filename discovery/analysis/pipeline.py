@@ -25,6 +25,7 @@ from discovery.analysis.mutual_info import run_mutual_info_analysis
 from discovery.analysis.subject_analysis import run_subject_analysis
 from discovery.analysis.cross_subject import run_cross_subject_analysis
 from discovery.analysis.student_profiler import run_student_profiler
+from discovery.analysis.irt_analysis import run_irt_analysis
 
 
 # ── データバリデーション ─────────────────────────────────
@@ -139,6 +140,12 @@ PIPELINE_STEPS = [
         "label": "多次元生徒プロファイル",
         "func": run_student_profiler,
         "output_file": "student_profiles_enhanced.json",
+    },
+    {
+        "name": "irt_analysis",
+        "label": "IRT分析 (2PL)",
+        "func": run_irt_analysis,
+        "output_file": "irt_analysis.json",
     },
 ]
 
