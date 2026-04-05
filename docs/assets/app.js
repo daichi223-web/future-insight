@@ -136,6 +136,13 @@
     return PESTLE_COLORS[category] || '#888';
   }
 
+  function renderPestleTags(pestleArray) {
+    const tags = (pestleArray || []).map((p) =>
+      `<span class="pestle-tag" style="background:${getPestleColor(p)}">${getPestleJa(p)}</span>`
+    ).join('');
+    return tags || '<span class="pestle-tag" style="background:#aaa">未分類</span>';
+  }
+
   function getSignalLevel(score) {
     if (score >= 7) return 'HIGH';
     if (score >= 4) return 'Medium';
@@ -407,7 +414,7 @@
                 <div class="signal-item-meta">
                   <span>${escapeHtml(a.source || '')}</span>
                   <span>${formatDate(a.publishedAt)}</span>
-                  ${(a.pestle || []).map((p) => `<span class="pestle-tag" style="background:${getPestleColor(p)}">${getPestleJa(p)}</span>`).join('')}
+                  ${renderPestleTags(a.pestle)}
                 </div>
               </div>`
                 )
@@ -568,7 +575,7 @@
           <span class="article-date">${formatDate(a.publishedAt)}</span>
         </div>
         <div class="article-tags">
-          ${(a.pestle || []).map((p) => `<span class="pestle-tag" style="background:${getPestleColor(p)}">${getPestleJa(p)}</span>`).join('')}
+          ${renderPestleTags(a.pestle)}
         </div>
         <p class="article-summary">${escapeHtml(a.summary || '')}</p>
       </div>`
@@ -693,7 +700,7 @@
         </div>
         <div class="article-tags">
           ${(a.arxivCategories || []).map((c) => `<span class="category-tag">${escapeHtml(c)}</span>`).join('')}
-          ${(a.pestle || []).map((p) => `<span class="pestle-tag" style="background:${getPestleColor(p)}">${getPestleJa(p)}</span>`).join('')}
+          ${renderPestleTags(a.pestle)}
         </div>
         <p class="article-summary">${escapeHtml(a.summary || '')}</p>
         <div class="article-actions">
@@ -834,7 +841,7 @@
           <span class="article-date">${formatDate(a.publishedAt)}</span>
         </div>
         <div class="article-tags">
-          ${(a.pestle || []).map((p) => `<span class="pestle-tag" style="background:${getPestleColor(p)}">${getPestleJa(p)}</span>`).join('')}
+          ${renderPestleTags(a.pestle)}
         </div>
         <p class="article-summary">${escapeHtml(a.summary || '')}</p>
       </div>`
@@ -1117,7 +1124,7 @@
                   </div>
                   <div class="signal-card-meta">
                     <span>${escapeHtml(a.source || '')}</span>
-                    ${(a.pestle || []).map((p) => `<span class="pestle-tag" style="background:${getPestleColor(p)}">${getPestleJa(p)}</span>`).join('')}
+                    ${renderPestleTags(a.pestle)}
                   </div>
                   <p class="signal-card-summary">${escapeHtml(a.summary || '')}</p>
                 </div>`
