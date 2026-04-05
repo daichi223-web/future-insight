@@ -77,7 +77,6 @@ def term_tooltip(word: str) -> None:
         f'padding: 8px 12px; margin: 4px 0; border-radius: 0 4px 4px 0; '
         f'font-size: 0.85em;">'
         f'<strong>{word}</strong>'
-        f'{"（" + entry.get("reading", "") + "）" if entry.get("reading") else ""}'
         f'<br>{entry.get("short", "")}'
         f'</div>',
         unsafe_allow_html=True,
@@ -91,7 +90,7 @@ def term_expander(word: str, expanded: bool = False) -> None:
         return
 
     entry = glossary[word]
-    reading = f"（{entry['reading']}）" if entry.get("reading") else ""
+    reading = ""
     category = entry.get("category", "")
     category_badge = f"  `{category}`" if category else ""
 
@@ -119,7 +118,7 @@ def glossary_sidebar(terms_to_show: list[str] | None = None) -> None:
     with st.sidebar.expander("用語解説", expanded=False):
         for word in available:
             entry = glossary[word]
-            reading = f"（{entry['reading']}）" if entry.get("reading") else ""
+            reading = ""
             st.markdown(
                 f"**{word}**{reading}",
                 help=entry.get("long", entry.get("short", "")),
@@ -148,7 +147,7 @@ def glossary_panel(category_filter: str | None = None) -> None:
     for cat, entries in sorted(by_category.items()):
         st.markdown(f"#### {cat}")
         for word, entry in entries:
-            reading = f"（{entry['reading']}）" if entry.get("reading") else ""
+            reading = ""
             with st.expander(f"{word}{reading}"):
                 st.markdown(entry.get("long", entry.get("short", "")))
 

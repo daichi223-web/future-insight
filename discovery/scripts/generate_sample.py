@@ -144,38 +144,38 @@ def generate_item_responses(students: pd.DataFrame, rng: np.random.Generator) ->
                 difficulty = item_difficulties[subj][item_idx]
 
                 # 基本正答確率
-                p = base_ability * difficulty + rng.normal(0, 0.05)
+                p = base_ability * difficulty + rng.normal(0, 0.02)
 
                 # ── 植え込み信号1: 教科横断前提チェーン ──
                 # 数学の代数操作(q01-q06)が高い→物理の公式適用(q19-q24)にボーナス
                 if subj == "physics" and 18 <= item_idx <= 23:
-                    math_ability = cls["abilities"]["math"] + rng.normal(0, 0.05)
+                    math_ability = cls["abilities"]["math"] + rng.normal(0, 0.03)
                     if math_ability > 0.6:
-                        p += 0.18
+                        p += 0.30
                     else:
-                        p -= 0.15
+                        p -= 0.20
 
                 # 数学の代数操作→化学の平衡計算(q19-q24)
                 if subj == "chemistry" and 18 <= item_idx <= 23:
-                    math_ability = cls["abilities"]["math"] + rng.normal(0, 0.05)
+                    math_ability = cls["abilities"]["math"] + rng.normal(0, 0.03)
                     if math_ability > 0.6:
-                        p += 0.12
+                        p += 0.22
                     else:
-                        p -= 0.10
+                        p -= 0.15
 
                 # 数学の関数理解(q19-q24)→物理の波動(q07-q12)
                 if subj == "physics" and 6 <= item_idx <= 11:
-                    func_ability = cls["abilities"]["math"] * 0.8 + rng.normal(0, 0.05)
+                    func_ability = cls["abilities"]["math"] * 0.8 + rng.normal(0, 0.03)
                     if func_ability > 0.5:
-                        p += 0.10
+                        p += 0.18
 
                 # ── 植え込み信号3: ボトルネックスキル（読解力）──
-                # 文章題（各教科q25-q30）は読解力に強く依存
-                if item_idx >= 24 and subj in ("math", "physics", "chemistry"):
+                # 文章題（各教科q19-q30）は読解力に強く依存（40%カバー）
+                if item_idx >= 18 and subj in ("math", "physics", "chemistry"):
                     if reading < 0.4:
-                        p -= 0.25
+                        p -= 0.30
                     elif reading > 0.7:
-                        p += 0.10
+                        p += 0.18
 
                 p = np.clip(p, 0.03, 0.97)
                 correct = int(rng.random() < p)
@@ -344,7 +344,7 @@ def main():
     parser = argparse.ArgumentParser(description="サンプル教育データ生成")
     parser.add_argument("--output-dir", default="discovery/data/sample")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--n-students", type=int, default=500)
+    parser.add_argument("--n-students", type=int, default=360)
     args = parser.parse_args()
 
     out = Path(args.output_dir)

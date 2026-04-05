@@ -15,6 +15,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from discovery.analysis.config import ASSOCIATION as CFG
+
 try:
     from mlxtend.frequent_patterns import apriori, association_rules
 except ImportError:
@@ -320,11 +322,14 @@ def run_association_analysis(data_dir: Path, output_dir: Path) -> dict:
 
     # ルールマイニング
     print("  [相関ルール] Apriori 実行中...", flush=True)
-    rules = mine_rules(binary_df, min_support=0.15, min_confidence=0.5, min_lift=1.2)
+    rules = mine_rules(binary_df, min_support=CFG["min_support"],
+                       min_confidence=CFG["min_confidence"], min_lift=CFG["min_lift"])
 
     if rules.empty:
         print("  [相関ルール] ルールが見つかりませんでした（閾値を緩和して再試行）", flush=True)
-        rules = mine_rules(binary_df, min_support=0.10, min_confidence=0.4, min_lift=1.1)
+        rules = mine_rules(binary_df, min_support=CFG["fallback_support"],
+                           min_confidence=CFG["fallback_confidence"],
+                           min_lift=CFG["fallback_lift"])
 
     total_rules = len(rules)
     print(f"  [相関ルール] 抽出ルール数: {total_rules}", flush=True)

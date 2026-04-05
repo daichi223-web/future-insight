@@ -15,6 +15,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from discovery.analysis.config import ITEM_ANALYSIS as CFG
+
 
 # ── スキルマッピング定数 ─────────────────────────────────
 
@@ -54,8 +56,8 @@ def compute_discrimination(responses_df: pd.DataFrame) -> pd.DataFrame:
         # 受験者ごとの教科合計点
         totals = subj_df.groupby("student_id")["correct"].sum()
         n = len(totals)
-        cutoff_low = totals.quantile(0.27)
-        cutoff_high = totals.quantile(0.73)
+        cutoff_low = totals.quantile(CFG["percentile_cutoff"])
+        cutoff_high = totals.quantile(1 - CFG["percentile_cutoff"])
 
         top_students = set(totals[totals >= cutoff_high].index)
         bottom_students = set(totals[totals <= cutoff_low].index)
@@ -125,11 +127,11 @@ def flag_problematic_items(metrics_df: pd.DataFrame) -> pd.DataFrame:
         d = row.get("difficulty", 0.5)
         disc = row.get("discrimination", 0.3)
 
-        if d < 0.10:
+        if d < CFG["flag_difficulty_low"]:
             flags.append("too_hard")
-        if d > 0.90:
+        if d > CFG["flag_difficulty_high"]:
             flags.append("too_easy")
-        if disc < 0.20:
+        if disc < CFG["flag_discrimination_low"]:
             flags.append("low_discrimination")
 
         flags_list.append(flags)
