@@ -562,25 +562,71 @@
       return;
     }
 
-    listEl.innerHTML = filtered
-      .map(
-        (a) => `
-      <div class="article-card" data-url="${escapeHtml(a.url || '')}">
-        <div class="article-header">
-          <h4 class="article-title">${escapeHtml(a.title)}</h4>
-          ${getSignalScoreBadge(a.signalScore)}
-        </div>
-        <div class="article-meta">
-          <span class="article-source">${escapeHtml(a.source || '')}</span>
-          <span class="article-date">${formatDate(a.publishedAt)}</span>
-        </div>
-        <div class="article-tags">
-          ${renderPestleTags(a.pestle)}
-        </div>
-        <p class="article-summary">${escapeHtml(a.summary || '')}</p>
-      </div>`
-      )
-      .join('');
+    // Group by signal level
+    const high = filtered.filter((a) => a.signalScore >= 7).sort((a, b) => b.signalScore - a.signalScore);
+    const medium = filtered.filter((a) => a.signalScore >= 4 && a.signalScore < 7).sort((a, b) => b.signalScore - a.signalScore);
+    const low = filtered.filter((a) => a.signalScore < 4).sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
+    let html = '';
+
+    // HIGH: full cards with summary
+    if (high.length > 0) {
+      html += `
+        <div class="signal-section">
+          <h3 class="signal-section-title signal-section-high">HIGH シグナル <span class="section-count">${high.length}</span></h3>
+          <div class="article-list">${high.map((a) => `
+            <div class="article-card article-card-high" data-url="${escapeHtml(a.url || '')}">
+              <div class="article-header">
+                <h4 class="article-title">${escapeHtml(a.title)}</h4>
+                ${getSignalScoreBadge(a.signalScore)}
+              </div>
+              <div class="article-meta">
+                <span class="article-source">${escapeHtml(a.source || '')}</span>
+                <span class="article-date">${formatDate(a.publishedAt)}</span>
+              </div>
+              <div class="article-tags">${renderPestleTags(a.pestle)}</div>
+              <p class="article-summary">${escapeHtml(a.summary || '')}</p>
+            </div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    // Medium: compact cards (title + meta + tags, no summary)
+    if (medium.length > 0) {
+      html += `
+        <div class="signal-section">
+          <h3 class="signal-section-title signal-section-medium">Medium シグナル <span class="section-count">${medium.length}</span></h3>
+          <div class="article-list article-list-compact">${medium.map((a) => `
+            <div class="article-card article-card-compact" data-url="${escapeHtml(a.url || '')}">
+              <div class="article-header">
+                <h4 class="article-title">${escapeHtml(a.title)}</h4>
+                ${getSignalScoreBadge(a.signalScore)}
+              </div>
+              <div class="article-meta">
+                <span class="article-source">${escapeHtml(a.source || '')}</span>
+                <span class="article-date">${formatDate(a.publishedAt)}</span>
+                ${renderPestleTags(a.pestle)}
+              </div>
+            </div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    // Low: headline list only
+    if (low.length > 0) {
+      html += `
+        <div class="signal-section">
+          <h3 class="signal-section-title signal-section-low">Low シグナル <span class="section-count">${low.length}</span></h3>
+          <ul class="headline-list">${low.map((a) => `
+            <li class="headline-item">
+              <a href="${escapeHtml(a.url || '')}" target="_blank" rel="noopener">${escapeHtml(a.title)}</a>
+              <span class="headline-meta">${escapeHtml(a.source || '')} | ${formatDate(a.publishedAt)}</span>
+            </li>`).join('')}
+          </ul>
+        </div>`;
+    }
+
+    listEl.innerHTML = html;
   }
 
   function bindNewsEvents() {
