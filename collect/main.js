@@ -38,7 +38,7 @@ function assignIds(articles) {
  * Remove internal metadata fields before writing output.
  */
 function cleanForOutput(article) {
-  const { _hnScore, _hatenaBookmarks, ...clean } = article;
+  const { _hnScore, _hatenaBookmarks, _engagement, ...clean } = article;
   return clean;
 }
 
@@ -90,12 +90,17 @@ async function main() {
   console.log(`After deduplicate: ${unique.length}`);
 
   const classified = unique.map(classifyPestle);
-  const scored = classified.map(calculateScore);
 
-  // 5. Sort by date descending
+  // 5. Drop articles with no PESTLE match (everyday news: sports, entertainment, etc.)
+  const relevant = classified.filter((a) => a.pestle && a.pestle.length > 0);
+  console.log(`After relevance filter: ${relevant.length} (dropped ${classified.length - relevant.length} unclassified)`);
+
+  const scored = relevant.map(calculateScore);
+
+  // 6. Sort by date descending
   scored.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
-  // 6. Assign IDs and clean
+  // 7. Assign IDs and clean
   const withIds = assignIds(scored);
   const output = {
     lastUpdated: new Date().toISOString(),
@@ -135,7 +140,9 @@ async function main() {
   const normBlogs = rawBlogs.map(normalize);
   const uniqueBlogs = deduplicate(normBlogs);
   const classifiedBlogs = uniqueBlogs.map(classifyPestle);
-  const scoredBlogs = classifiedBlogs.map(calculateScore);
+  const relevantBlogs = classifiedBlogs.filter((a) => a.pestle && a.pestle.length > 0);
+  console.log(`After relevance filter: ${relevantBlogs.length} (dropped ${classifiedBlogs.length - relevantBlogs.length} unclassified)`);
+  const scoredBlogs = relevantBlogs.map(calculateScore);
   scoredBlogs.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
   const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
