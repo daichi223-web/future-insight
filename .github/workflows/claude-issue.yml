@@ -1,0 +1,58 @@
+name: Claude Code - Issue Handler
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  claude:
+    # Only run when issue has the "claude" label
+    if: contains(github.event.issue.labels.*.name, 'claude')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run Claude Code
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Extract issue title and body as the prompt
+          PROMPT=$(cat <<'PROMPT_EOF'
+          Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+
+          ${{ github.event.issue.body }}
+
+          Instructions:
+          - Work on this issue in the future-insight project
+          - Create a new branch and commit your changes
+          - Create a pull request when done
+          - Reference the issue number in the PR
+          PROMPT_EOF
+          )
+
+          claude -p "$PROMPT" --allowedTools "Bash(git *)" "Bash(node *)" "Bash(npm *)" "Read" "Write" "Edit" "Glob" "Grep"
+
+      - name: Comment on issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment ${{ github.event.issue.number }} \
+            --body "Claude Code has processed this issue. Check for new PRs or commits."
