@@ -3,6 +3,8 @@ name: Claude Code - Issue Handler
 on:
   issues:
     types: [opened, labeled]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
@@ -11,48 +13,30 @@ permissions:
 
 jobs:
   claude:
-    # Only run when issue has the "claude" label
-    if: contains(github.event.issue.labels.*.name, 'claude')
+    # Run when: issue has "claude" label (new/labeled), or comment on a "claude" issue starts with @claude
+    if: |
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'claude')) ||
+      (github.event_name == 'issue_comment' && contains(github.event.issue.labels.*.name, 'claude') && startsWith(github.event.comment.body, '@claude'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - uses: actions/setup-node@v4
+      - uses: anthropics/claude-code-action@v1
         with:
-          node-version: '20'
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          direct_prompt: |
+            このリポジトリは future-insight（未来洞察支援アプリ）です。
+            以下の Issue の指示に従って作業してください。
 
-      - run: npm ci
+            Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
 
-      - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code
+            ${{ github.event.issue.body }}
 
-      - name: Run Claude Code
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          # Extract issue title and body as the prompt
-          PROMPT=$(cat <<'PROMPT_EOF'
-          Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
-
-          ${{ github.event.issue.body }}
-
-          Instructions:
-          - Work on this issue in the future-insight project
-          - Create a new branch and commit your changes
-          - Create a pull request when done
-          - Reference the issue number in the PR
-          PROMPT_EOF
-          )
-
-          claude -p "$PROMPT" --allowedTools "Bash(git *)" "Bash(node *)" "Bash(npm *)" "Read" "Write" "Edit" "Glob" "Grep"
-
-      - name: Comment on issue
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh issue comment ${{ github.event.issue.number }} \
-            --body "Claude Code has processed this issue. Check for new PRs or commits."
+            作業手順:
+            1. 指示された変更を実装する
+            2. 変更をコミットする
+            3. 変更内容を Issue にコメントで報告する
+          allowed_tools: "Bash,Read,Write,Edit,Glob,Grep"
