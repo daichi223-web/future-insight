@@ -147,9 +147,7 @@
 
   function getJaSummary(article) {
     if (!article || article.lang === 'ja' || !article.lang) return '';
-    const t = state.dailySummary && state.dailySummary.translations;
-    const ja = t && t[article.id];
-    if (ja) return `<p class="ja-summary">${escapeHtml(ja)}</p>`;
+    if (article.summaryJa) return `<p class="ja-summary">${escapeHtml(article.summaryJa)}</p>`;
     return '<p class="ja-summary ja-summary-none">🌐 海外記事</p>';
   }
 

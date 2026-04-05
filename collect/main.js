@@ -5,6 +5,7 @@ const path = require('path');
 const { DATA_OUTPUT_PATH, BLOG_OUTPUT_PATH, RSS_INTERVAL_MS } = require('./config');
 const normalize = require('./processors/normalize');
 const deduplicate = require('./processors/deduplicate');
+const addJapaneseSummary = require('./processors/summarize-ja');
 const classifyPestle = require('./processors/pestle');
 const calculateScore = require('./processors/scorer');
 const sleep = require('./utils/sleep');
@@ -100,11 +101,12 @@ async function main() {
   // 6. Sort by date descending
   scored.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
-  // 7. Assign IDs and clean
+  // 7. Assign IDs, add Japanese summaries, then clean
   const withIds = assignIds(scored);
+  const withJa = await addJapaneseSummary(withIds);
   const output = {
     lastUpdated: new Date().toISOString(),
-    articles: withIds.map(cleanForOutput),
+    articles: withJa.map(cleanForOutput),
   };
 
   // 7. Ensure output directory exists
@@ -151,9 +153,11 @@ async function main() {
     id: `blog-${today}-${String(i + 1).padStart(3, '0')}`,
   }));
 
+  const blogWithJa = await addJapaneseSummary(blogWithIds);
+
   const blogOutput = {
     lastUpdated: new Date().toISOString(),
-    articles: blogWithIds.map(cleanForOutput),
+    articles: blogWithJa.map(cleanForOutput),
   };
 
   const blogDir = path.dirname(BLOG_OUTPUT_PATH);
