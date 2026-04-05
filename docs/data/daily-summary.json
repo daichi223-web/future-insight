@@ -1,0 +1,31 @@
+{
+  "date": null,
+  "generatedAt": null,
+  "overview": "",
+  "sections": {
+    "news": {
+      "title": "ニュース",
+      "summary": "",
+      "highlights": []
+    },
+    "papers": {
+      "title": "学術論文",
+      "summary": "",
+      "highlights": []
+    },
+    "blogs": {
+      "title": "SNS/テックブログ",
+      "summary": "",
+      "highlights": []
+    }
+  },
+  "pestle": {
+    "Political": "",
+    "Economic": "",
+    "Social": "",
+    "Technological": "",
+    "Legal": "",
+    "Environmental": "",
+    "AI": ""
+  }
+}

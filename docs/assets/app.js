@@ -13,6 +13,7 @@
   const DATA_PATHS = {
     latest: './data/latest.json',
     snsBlogs: './data/sns-blogs.json',
+    dailySummary: './data/daily-summary.json',
     claIndex: './data/cla/index.json',
     claYear: (year) => `./data/cla/${year}.json`,
     scenarios: './data/scenarios/scenarios.json',
@@ -90,6 +91,7 @@
   const state = {
     articles: [],
     snsArticles: [],
+    dailySummary: null,
     lastUpdated: null,
     claIndex: null,
     claData: {},
@@ -224,9 +226,10 @@
   async function loadData() {
     showLoading(true);
     try {
-      const [latestData, snsBlogsData, claIndex, scenariosData] = await Promise.all([
+      const [latestData, snsBlogsData, summaryData, claIndex, scenariosData] = await Promise.all([
         fetchJSON(DATA_PATHS.latest).catch(() => null),
         fetchJSON(DATA_PATHS.snsBlogs).catch(() => null),
+        fetchJSON(DATA_PATHS.dailySummary).catch(() => null),
         fetchJSON(DATA_PATHS.claIndex).catch(() => null),
         fetchJSON(DATA_PATHS.scenarios).catch(() => null),
       ]);
@@ -237,6 +240,9 @@
       }
       if (snsBlogsData) {
         state.snsArticles = snsBlogsData.articles || [];
+      }
+      if (summaryData && summaryData.date) {
+        state.dailySummary = summaryData;
       }
       if (claIndex) {
         const years = Array.isArray(claIndex) ? claIndex : (claIndex.years || []);
@@ -346,6 +352,48 @@
   // 1. Overview
   // ----------------------------------------------------------
 
+  function renderDailySummarySection() {
+    const s = state.dailySummary;
+    if (!s || !s.date) {
+      return '<div class="summary-placeholder"><p class="empty-state">デイリーサマリーはまだ生成されていません</p></div>';
+    }
+
+    const sections = s.sections || {};
+    const pestle = s.pestle || {};
+
+    return `
+      <div class="daily-summary">
+        <div class="summary-header">
+          <h3>デイリーサマリー</h3>
+          <span class="summary-date">${escapeHtml(s.date)}</span>
+        </div>
+        ${s.overview ? `<div class="summary-overview"><p>${escapeHtml(s.overview)}</p></div>` : ''}
+
+        <div class="summary-sections">
+          ${Object.values(sections).map((sec) => !sec.summary ? '' : `
+            <div class="summary-card">
+              <h4>${escapeHtml(sec.title)}</h4>
+              <p>${escapeHtml(sec.summary)}</p>
+              ${(sec.highlights || []).length > 0 ? `
+                <ul class="summary-highlights">
+                  ${sec.highlights.map((h) => `<li>${escapeHtml(h)}</li>`).join('')}
+                </ul>` : ''}
+            </div>`).join('')}
+        </div>
+
+        <div class="summary-pestle">
+          <h4>PESTLE-A カテゴリ別</h4>
+          <div class="pestle-summary-grid">
+            ${Object.entries(pestle).filter(([, v]) => v).map(([cat, text]) => `
+              <div class="pestle-summary-item">
+                <span class="pestle-tag" style="background:${getPestleColor(cat)}">${getPestleJa(cat)}</span>
+                <p>${escapeHtml(text)}</p>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
   function renderOverview(container) {
     const articles = state.articles;
     const news = articles.filter((a) => a.type === 'news');
@@ -386,6 +434,8 @@
           <div class="stat-label">最終更新</div>
         </div>
       </div>
+
+      ${renderDailySummarySection()}
 
       <div class="charts-row">
         <div class="chart-container">
