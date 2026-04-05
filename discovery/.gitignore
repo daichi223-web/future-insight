@@ -6,4 +6,13 @@ analysis/output/*.json
 data/sample/*.csv
 data/sample/*.json
 !data/sample/.gitkeep
+data/import/tests/*.pdf
+data/import/results/*.csv
+data/import/results/*.xlsx
+data/import/results/*.xls
+data/import/attendance/*.csv
+data/import/attendance/*.xlsx
+data/import/surveys/*.csv
+data/import/surveys/*.xlsx
+data/real/
 .venv/
