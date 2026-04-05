@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { DATA_OUTPUT_PATH, RSS_INTERVAL_MS } = require('./config');
+const { DATA_OUTPUT_PATH, BLOG_OUTPUT_PATH, RSS_INTERVAL_MS } = require('./config');
 const normalize = require('./processors/normalize');
 const deduplicate = require('./processors/deduplicate');
 const classifyPestle = require('./processors/pestle');
@@ -16,8 +16,12 @@ const nhk = require('./sources/nhk');
 const hatena = require('./sources/hatena');
 const hackernews = require('./sources/hackernews');
 const arxiv = require('./sources/arxiv');
+const zenn = require('./sources/zenn');
+const qiita = require('./sources/qiita');
+const githubTrending = require('./sources/github-trending');
 
 const rssSources = [googleNews, yahooNews, nhk, hatena];
+const blogSources = [zenn, qiita, githubTrending];
 
 /**
  * Assign sequential IDs based on date.
@@ -107,6 +111,50 @@ async function main() {
   // 8. Write output
   fs.writeFileSync(DATA_OUTPUT_PATH, JSON.stringify(output, null, 2), 'utf-8');
   console.log(`\nWrote ${withIds.length} articles to ${DATA_OUTPUT_PATH}`);
+
+  // ============================
+  // Blog / SNS collection
+  // ============================
+  console.log('\n=== Blog / SNS Collection ===');
+  const rawBlogs = [];
+
+  for (const source of blogSources) {
+    try {
+      console.log(`[${source.name}] Fetching...`);
+      const articles = await source.fetch();
+      console.log(`[${source.name}] Got ${articles.length} articles`);
+      rawBlogs.push(...articles);
+      await sleep(RSS_INTERVAL_MS);
+    } catch (err) {
+      console.error(`[${source.name}] FAILED: ${err.message}`);
+    }
+  }
+
+  console.log(`Total raw blog articles: ${rawBlogs.length}`);
+
+  const normBlogs = rawBlogs.map(normalize);
+  const uniqueBlogs = deduplicate(normBlogs);
+  const classifiedBlogs = uniqueBlogs.map(classifyPestle);
+  const scoredBlogs = classifiedBlogs.map(calculateScore);
+  scoredBlogs.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const blogWithIds = scoredBlogs.map((a, i) => ({
+    ...a,
+    id: `blog-${today}-${String(i + 1).padStart(3, '0')}`,
+  }));
+
+  const blogOutput = {
+    lastUpdated: new Date().toISOString(),
+    articles: blogWithIds.map(cleanForOutput),
+  };
+
+  const blogDir = path.dirname(BLOG_OUTPUT_PATH);
+  if (!fs.existsSync(blogDir)) {
+    fs.mkdirSync(blogDir, { recursive: true });
+  }
+  fs.writeFileSync(BLOG_OUTPUT_PATH, JSON.stringify(blogOutput, null, 2), 'utf-8');
+  console.log(`Wrote ${blogWithIds.length} blog articles to ${BLOG_OUTPUT_PATH}`);
   console.log(`Finished at ${new Date().toISOString()}`);
 }
 

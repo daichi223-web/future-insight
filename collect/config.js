@@ -5,6 +5,9 @@ const path = require('path');
 /** Output path for latest.json */
 const DATA_OUTPUT_PATH = path.resolve(__dirname, '..', 'docs', 'data', 'latest.json');
 
+/** Output path for sns-blogs.json */
+const BLOG_OUTPUT_PATH = path.resolve(__dirname, '..', 'docs', 'data', 'sns-blogs.json');
+
 /** Fetch timeout in milliseconds */
 const FETCH_TIMEOUT_MS = 15000;
 
@@ -51,12 +54,35 @@ const ARXIV = {
   maxResults: 20,
 };
 
+/** Zenn RSS */
+const ZENN = {
+  feed: 'https://zenn.dev/feed',
+};
+
+/** Qiita API */
+const QIITA = {
+  endpoint: 'https://qiita.com/api/v2/items',
+  query: 'tag:AI OR tag:機械学習 OR tag:LLM OR tag:プログラミング OR tag:Python',
+  maxItems: 20,
+};
+
+/** GitHub Trending (via Search API) */
+const GITHUB_TRENDING = {
+  endpoint: 'https://api.github.com/search/repositories',
+  daysBack: 7,
+  maxItems: 20,
+};
+
 module.exports = {
   DATA_OUTPUT_PATH,
+  BLOG_OUTPUT_PATH,
   FETCH_TIMEOUT_MS,
   RSS_INTERVAL_MS,
   ARXIV_DELAY_MS,
   RSS_FEEDS,
   HACKERNEWS,
   ARXIV,
+  ZENN,
+  QIITA,
+  GITHUB_TRENDING,
 };

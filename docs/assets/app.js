@@ -12,6 +12,7 @@
 
   const DATA_PATHS = {
     latest: './data/latest.json',
+    snsBlogs: './data/sns-blogs.json',
     claIndex: './data/cla/index.json',
     claYear: (year) => `./data/cla/${year}.json`,
     scenarios: './data/scenarios/scenarios.json',
@@ -24,6 +25,7 @@
     Technological: '技術',
     Legal: '法律',
     Environmental: '環境',
+    AI: 'AI',
   };
 
   const PESTLE_COLORS = {
@@ -33,6 +35,7 @@
     Technological: '#3498db',
     Legal: '#9b59b6',
     Environmental: '#1abc9c',
+    AI: '#e91e8f',
   };
 
   const SIGNAL_LEVELS = {
@@ -45,13 +48,14 @@
     { id: 'overview', label: '概要' },
     { id: 'pestle-news', label: 'PESTLEニュース' },
     { id: 'papers', label: '学術論文' },
+    { id: 'sns-blogs', label: 'SNS/テックブログ' },
     { id: 'cla', label: 'CLA分析' },
     { id: 'scenarios', label: 'シナリオ' },
     { id: 'weak-signals', label: 'ウィークシグナル' },
     { id: 'settings', label: '設定' },
   ];
 
-  const CLA_FIELDS = ['全体', '政治', '経済', '社会', '技術', '法律', '環境'];
+  const CLA_FIELDS = ['全体', '政治', '経済', '社会', '技術', '法律', '環境', 'AI'];
 
   const CLA_LAYERS = [
     { key: 'layer1_litany', label: 'Layer 1 リタニー（出来事）' },
@@ -74,6 +78,9 @@
     'はてなブックマーク',
     'Hacker News',
     'arXiv',
+    'Zenn',
+    'Qiita',
+    'GitHub Trending',
   ];
 
   // ----------------------------------------------------------
@@ -82,6 +89,7 @@
 
   const state = {
     articles: [],
+    snsArticles: [],
     lastUpdated: null,
     claIndex: null,
     claData: {},
@@ -94,6 +102,7 @@
       type: 'all',
       claYear: 2020,
       claField: '全体',
+      _blogSource: null,
     },
   };
 
@@ -208,8 +217,9 @@
   async function loadData() {
     showLoading(true);
     try {
-      const [latestData, claIndex, scenariosData] = await Promise.all([
+      const [latestData, snsBlogsData, claIndex, scenariosData] = await Promise.all([
         fetchJSON(DATA_PATHS.latest).catch(() => null),
+        fetchJSON(DATA_PATHS.snsBlogs).catch(() => null),
         fetchJSON(DATA_PATHS.claIndex).catch(() => null),
         fetchJSON(DATA_PATHS.scenarios).catch(() => null),
       ]);
@@ -217,6 +227,9 @@
       if (latestData) {
         state.articles = latestData.articles || [];
         state.lastUpdated = latestData.lastUpdated || null;
+      }
+      if (snsBlogsData) {
+        state.snsArticles = snsBlogsData.articles || [];
       }
       if (claIndex) {
         const years = Array.isArray(claIndex) ? claIndex : (claIndex.years || []);
@@ -302,6 +315,9 @@
       case 'papers':
         renderPapers(content);
         break;
+      case 'sns-blogs':
+        renderSnsBlogs(content);
+        break;
       case 'cla':
         renderCLA(content);
         break;
@@ -349,6 +365,10 @@
         <div class="stat-card">
           <div class="stat-number">${papers.length}</div>
           <div class="stat-label">学術論文</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">${state.snsArticles.length}</div>
+          <div class="stat-label">SNS/ブログ</div>
         </div>
         <div class="stat-card">
           <div class="stat-number">${avgScore}</div>
@@ -717,6 +737,170 @@
   }
 
   // ----------------------------------------------------------
+  // 3b. SNS / Tech Blogs
+  // ----------------------------------------------------------
+
+  const BLOG_SOURCES = ['Zenn', 'Qiita', 'GitHub Trending'];
+
+  function renderSnsBlogs(container) {
+    const blogArticles = state.snsArticles;
+
+    const sourceCounts = {};
+    BLOG_SOURCES.forEach((s) => (sourceCounts[s] = 0));
+    blogArticles.forEach((a) => {
+      if (sourceCounts[a.source] !== undefined) sourceCounts[a.source]++;
+    });
+
+    const pestleCounts = {};
+    Object.keys(PESTLE_EN_TO_JA).forEach((k) => (pestleCounts[k] = 0));
+    blogArticles.forEach((a) => {
+      (a.pestle || []).forEach((p) => {
+        if (pestleCounts[p] !== undefined) pestleCounts[p]++;
+      });
+    });
+
+    container.innerHTML = `
+      <div class="filter-bar">
+        <div class="search-box">
+          <input type="text" id="blog-search" placeholder="タイトル・要約で検索..."
+                 value="${escapeHtml(state.filters.search)}">
+        </div>
+        <div class="sort-select">
+          <select id="blog-sort">
+            <option value="date" ${state.filters.sort === 'date' ? 'selected' : ''}>日付順</option>
+            <option value="score" ${state.filters.sort === 'score' ? 'selected' : ''}>スコア順</option>
+          </select>
+        </div>
+      </div>
+      <div class="source-chips" id="blog-source-chips">
+        ${BLOG_SOURCES
+          .map(
+            (s) => `
+          <button class="pestle-chip ${state.filters._blogSource === s ? 'active' : ''}"
+                  data-source="${s}"
+                  style="--chip-color:#555">
+            ${escapeHtml(s)} <span class="chip-count">${sourceCounts[s]}</span>
+          </button>`
+          )
+          .join('')}
+      </div>
+      <div class="pestle-chips" id="blog-pestle-chips">
+        ${Object.keys(PESTLE_EN_TO_JA)
+          .map(
+            (p) => `
+          <button class="pestle-chip ${state.filters.pestle.includes(p) ? 'active' : ''}"
+                  data-pestle="${p}"
+                  style="--chip-color:${getPestleColor(p)}">
+            ${getPestleJa(p)} <span class="chip-count">${pestleCounts[p]}</span>
+          </button>`
+          )
+          .join('')}
+      </div>
+      <div id="blog-list" class="article-list"></div>
+    `;
+
+    renderBlogArticles();
+    bindBlogEvents();
+  }
+
+  function renderBlogArticles() {
+    const listEl = document.getElementById('blog-list');
+    if (!listEl) return;
+
+    let articles = state.snsArticles;
+
+    // Source filter
+    if (state.filters._blogSource) {
+      articles = articles.filter((a) => a.source === state.filters._blogSource);
+    }
+
+    const filtered = filterArticles(articles, state.filters);
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<p class="empty-state">条件に一致する記事がありません</p>';
+      return;
+    }
+
+    listEl.innerHTML = filtered
+      .map(
+        (a) => `
+      <div class="article-card" data-url="${escapeHtml(a.url || '')}">
+        <div class="article-header">
+          <h4 class="article-title">${escapeHtml(a.title)}</h4>
+          ${getSignalScoreBadge(a.signalScore)}
+        </div>
+        <div class="article-meta">
+          <span class="article-source">${escapeHtml(a.source || '')}</span>
+          <span class="article-date">${formatDate(a.publishedAt)}</span>
+        </div>
+        <div class="article-tags">
+          ${(a.pestle || []).map((p) => `<span class="pestle-tag" style="background:${getPestleColor(p)}">${getPestleJa(p)}</span>`).join('')}
+        </div>
+        <p class="article-summary">${escapeHtml(a.summary || '')}</p>
+      </div>`
+      )
+      .join('');
+  }
+
+  function bindBlogEvents() {
+    const searchInput = document.getElementById('blog-search');
+    const sortSelect = document.getElementById('blog-sort');
+    const sourceChips = document.getElementById('blog-source-chips');
+    const pestleChips = document.getElementById('blog-pestle-chips');
+
+    if (searchInput) {
+      searchInput.addEventListener(
+        'input',
+        debounce(function () {
+          state.filters.search = this.value;
+          renderBlogArticles();
+        }, 300)
+      );
+    }
+
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function () {
+        state.filters.sort = this.value;
+        renderBlogArticles();
+      });
+    }
+
+    if (sourceChips) {
+      sourceChips.addEventListener('click', function (e) {
+        const chip = e.target.closest('.pestle-chip');
+        if (!chip) return;
+        const s = chip.dataset.source;
+        if (state.filters._blogSource === s) {
+          state.filters._blogSource = null;
+          chip.classList.remove('active');
+        } else {
+          state.filters._blogSource = s;
+          sourceChips.querySelectorAll('.pestle-chip').forEach((c) => c.classList.remove('active'));
+          chip.classList.add('active');
+        }
+        renderBlogArticles();
+      });
+    }
+
+    if (pestleChips) {
+      pestleChips.addEventListener('click', function (e) {
+        const chip = e.target.closest('.pestle-chip');
+        if (!chip) return;
+        const p = chip.dataset.pestle;
+        const idx = state.filters.pestle.indexOf(p);
+        if (idx >= 0) {
+          state.filters.pestle.splice(idx, 1);
+          chip.classList.remove('active');
+        } else {
+          state.filters.pestle.push(p);
+          chip.classList.add('active');
+        }
+        renderBlogArticles();
+      });
+    }
+  }
+
+  // ----------------------------------------------------------
   // 4. CLA Analysis
   // ----------------------------------------------------------
 
@@ -970,8 +1154,9 @@
   function renderSettings(container) {
     const articles = state.articles;
 
-    // Determine seen sources
-    const seenSources = new Set(articles.map((a) => a.source).filter(Boolean));
+    // Determine seen sources (include blog sources)
+    const allArticles = articles.concat(state.snsArticles);
+    const seenSources = new Set(allArticles.map((a) => a.source).filter(Boolean));
 
     // Date range
     const dates = articles.map((a) => new Date(a.publishedAt)).filter((d) => !isNaN(d.getTime()));
@@ -1011,6 +1196,7 @@
           <dt>記事数</dt><dd>${articles.length}</dd>
           <dt>ニュース</dt><dd>${articles.filter((a) => a.type === 'news').length}</dd>
           <dt>論文</dt><dd>${articles.filter((a) => a.type === 'paper').length}</dd>
+          <dt>SNS/ブログ</dt><dd>${state.snsArticles.length}</dd>
           <dt>日付範囲</dt>
           <dd>${minDate && maxDate ? `${formatDate(minDate.toISOString())} 〜 ${formatDate(maxDate.toISOString())}` : '---'}</dd>
           <dt>最終更新</dt><dd>${state.lastUpdated ? formatDateTime(state.lastUpdated) : '---'}</dd>
