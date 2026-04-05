@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   claude:
-    # Run when: issue has "claude" label (new/labeled), or comment on a "claude" issue starts with @claude
     if: |
       (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'claude')) ||
       (github.event_name == 'issue_comment' && contains(github.event.issue.labels.*.name, 'claude') && startsWith(github.event.comment.body, '@claude'))
@@ -27,16 +26,9 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          direct_prompt: |
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          trigger_phrase: "@claude"
+          prompt: |
             このリポジトリは future-insight（未来洞察支援アプリ）です。
-            以下の Issue の指示に従って作業してください。
-
-            Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
-
-            ${{ github.event.issue.body }}
-
-            作業手順:
-            1. 指示された変更を実装する
-            2. 変更をコミットする
-            3. 変更内容を Issue にコメントで報告する
-          allowed_tools: "Bash,Read,Write,Edit,Glob,Grep"
+            Issue の指示に従って作業してください。
+            変更したらコミットして、内容を Issue にコメントで報告してください。
